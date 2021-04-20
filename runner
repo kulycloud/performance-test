@@ -3,13 +3,13 @@
 import time
 import requests
 
-def get_latency(hops, body="", tries=1000):
+def get_latency(hops, tries=1000):
     d = set()
     ctr = 0
     while ctr < tries:
         try:
             print(ctr)
-            response = requests.post(f"https://n.kuly.cloud/{'/n'*(hops-1)}/echo", timeout=10, data=body)
+            response = requests.get(f"https://n.kuly.cloud/{'/n'*(hops-1)}", timeout=10)
             d.add(response.elapsed.total_seconds()*1000)
             ctr += 1
         except Exception as e:
@@ -25,15 +25,12 @@ def get_latency(hops, body="", tries=1000):
 
     return (lowerquart, median, avg, upperquart)
     
-def print_csv(file, maxhops, sizes):
+def print_csv(file, maxhops):
     f = open(file, "w")
-    for size in sizes:
-        print(f"Checking for size {size}")
-        body = "x"*size
-        for hops in range(0, maxhops+1):
-            print(f"Checking for hops {hops}")
-            times = get_latency(hops, body=body)
-            f.write(f"{size},{hops},{times[0]},{times[1]},{times[2]},{times[3]}\n")
+    for hops in range(0, maxhops+1):
+        print(f"Checking for hops {hops}")
+        times = get_latency(hops)
+        f.write(f"{hops},{times[0]},{times[1]},{times[2]},{times[3]}\n")
     f.close()
 
 # print(get_latency(20, body="x"*1000))
